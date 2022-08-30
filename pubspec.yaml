@@ -40,6 +40,7 @@ dependencies:
   geocoding:
   http:
   shared_preferences:
+  flutter_easyloading: ^3.0.5
 
 dev_dependencies:
   flutter_test:

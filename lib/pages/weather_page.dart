@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:weather_app/pages/setting_page.dart';
 import 'package:weather_app/providers/weather_provider.dart';
 import 'package:weather_app/utils/constants.dart';
 import 'package:weather_app/utils/helper_function.dart';
@@ -30,11 +33,21 @@ class _WeatherPageState extends State<WeatherPage> {
     super.didChangeDependencies();
   }
 
-  _getData() {
-    determinePosition().then((position) {
+  _getData() async {
+    final locationEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!locationEnabled) {
+      EasyLoading.showToast('Location is disabled');
+      await Geolocator.getCurrentPosition();
+      _getData();
+    }
+    try {
+      final position = await determinePosition();
       provider.setNewLocation(position.latitude, position.longitude);
+      provider.setTempUnit(await provider.getPreferenceTempUnitValue());
       provider.getWeatherData();
-    });
+    } catch (error) {
+      rethrow;
+    }
   }
 
   @override
@@ -68,19 +81,29 @@ class _WeatherPageState extends State<WeatherPage> {
                   ),
                   Spacer(),
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final result = await showSearch(
+                            context: context, delegate: _citySearchDelegate());
+                        if (result != null && result.isNotEmpty) {
+                          provider.convertAddressToLatLong(result);
+                        }
+                      },
                       icon: Icon(
                         Icons.search,
                         color: Colors.white,
                       )),
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _getData();
+                      },
                       icon: Icon(
                         Icons.my_location_rounded,
                         color: Colors.white,
                       )),
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, SettingPage.routeName);
+                      },
                       icon: Icon(
                         Icons.settings,
                         color: Colors.white,
@@ -145,7 +168,7 @@ class _WeatherPageState extends State<WeatherPage> {
                     "$iconPrefix${response.weather![0].icon}$iconSuffix",
                     color: Colors.amber),
                 Text(
-                  "${response.main!.temp!.round()} $degree$celsius",
+                  "${response.main!.temp!.round()} $degree${provider.unitSymbol}",
                   style: TextStyle(color: Colors.white, fontSize: 55),
                 ),
               ],
@@ -222,5 +245,57 @@ class _WeatherPageState extends State<WeatherPage> {
 
   Widget _forecastWeatherSection() {
     return Center();
+  }
+}
+
+class _citySearchDelegate extends SearchDelegate<String> {
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+          onPressed: () {
+            query = '';
+          },
+          icon: Icon(Icons.clear)),
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    IconButton(
+        onPressed: () {
+          close(context, '');
+        },
+        icon: Icon(Icons.clear));
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.search),
+      title: Text(query),
+      onTap: () {
+        close(context, query);
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final filteredList = query.isEmpty
+        ? cities
+        : cities
+            .where((city) => city.toLowerCase().startsWith(query.toLowerCase()))
+            .toList();
+    return ListView.builder(
+      itemCount: filteredList.length,
+      itemBuilder: (context, index) => ListTile(
+        title: Text(filteredList[index]),
+        onTap: () {
+          query = filteredList[index];
+          close(context, query);
+        },
+      ),
+    );
   }
 }
