@@ -5,6 +5,6 @@ String getFormattedDate(num date, String? pattern) {
       .format(DateTime.fromMillisecondsSinceEpoch(date.toInt() * 1000));
 }
 String getFormattedTime(num date, String? pattern) {
-  return DateFormat.jms()
+  return DateFormat.jm()
       .format(DateTime.fromMillisecondsSinceEpoch(date.toInt() * 1000));
 }

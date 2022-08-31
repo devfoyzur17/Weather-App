@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/pages/setting_page.dart';
@@ -7,7 +9,6 @@ import 'package:weather_app/providers/weather_provider.dart';
 import 'package:weather_app/utils/constants.dart';
 import 'package:weather_app/utils/helper_function.dart';
 import 'package:weather_app/utils/location_utils.dart';
-import 'package:weather_app/utils/text_styles.dart';
 
 class WeatherPage extends StatefulWidget {
   static const routeName = "/";
@@ -56,14 +57,19 @@ class _WeatherPageState extends State<WeatherPage> {
     var statusBarHeight = MediaQuery.of(context).viewPadding.top;
 
     return Scaffold(
+      backgroundColor: Color(0xff0C1824),
       body: Stack(
         alignment: Alignment.center,
         children: [
-          Image.asset(
-            "assets/images/night.jpg",
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            fit: BoxFit.cover,
+          Column(
+            children: [
+              SvgPicture.asset(
+                "assets/images/1.svg",
+                height: (MediaQuery.of(context).size.height / 3) * 2.2,
+                width: MediaQuery.of(context).size.width,
+                fit: BoxFit.cover,
+              ),
+            ],
           ),
           Positioned(
             top: statusBarHeight,
@@ -77,7 +83,11 @@ class _WeatherPageState extends State<WeatherPage> {
                   ),
                   Text(
                     "Weather",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    style: TextStyle(
+                        color: Color(0xff0C1824),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1),
                   ),
                   Spacer(),
                   IconButton(
@@ -90,15 +100,7 @@ class _WeatherPageState extends State<WeatherPage> {
                       },
                       icon: Icon(
                         Icons.search,
-                        color: Colors.white,
-                      )),
-                  IconButton(
-                      onPressed: () {
-                        _getData();
-                      },
-                      icon: Icon(
-                        Icons.my_location_rounded,
-                        color: Colors.white,
+                        color: Color(0xff0C1824),
                       )),
                   IconButton(
                       onPressed: () {
@@ -106,7 +108,7 @@ class _WeatherPageState extends State<WeatherPage> {
                       },
                       icon: Icon(
                         Icons.settings,
-                        color: Colors.white,
+                        color: Color(0xff0C1824),
                       )),
                 ],
               ),
@@ -116,14 +118,12 @@ class _WeatherPageState extends State<WeatherPage> {
               ? Positioned(
                   top: appbarHeight + statusBarHeight,
                   child: SizedBox(
-                    height: MediaQuery.of(context).size.height -
-                        (appbarHeight + statusBarHeight),
+                    height: 1000,
                     width: MediaQuery.of(context).size.width,
-                    child: ListView(
-                      padding: const EdgeInsets.all(20),
+                    child: Column(
                       children: [
                         _currentWeatherSection(),
-                        _forecastWeatherSection()
+                        _forecastWeatherSection(),
                       ],
                     ),
                   ),
@@ -131,120 +131,189 @@ class _WeatherPageState extends State<WeatherPage> {
               : const CircularProgressIndicator(),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _getData();
+        },
+        child: Icon(
+          Icons.my_location_rounded,
+          color: Color(0xff0C1824),
+        ),
+      ),
     );
   }
 
   Widget _currentWeatherSection() {
     final response = provider.currentResponseModel;
-    return Container(
-      height: MediaQuery.of(context).size.height / 3,
-      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-      decoration: BoxDecoration(
-          color: Color(0xff001f4d).withOpacity(0.8),
-          borderRadius: BorderRadius.circular(25)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Today",
-                style: txtNormal16,
-              ),
-              Text(
-                getFormattedDate(response!.dt!, "dd/MM/yyyy"),
-                style: TextStyle(color: Colors.white, fontSize: 13),
-              )
-            ],
-          ),
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        height: MediaQuery.of(context).size.height / 3,
+        padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+        decoration: BoxDecoration(
+            color: Color(0xff00141a).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(25)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.network(
-                    "$iconPrefix${response.weather![0].icon}$iconSuffix",
-                    color: Colors.amber),
                 Text(
-                  "${response.main!.temp!.round()} $degree${provider.unitSymbol}",
-                  style: TextStyle(color: Colors.white, fontSize: 55),
+                  "Today",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+
+                ),
+                Text(
+                  getFormattedDate(response!.dt!, "dd/MM/yyyy"),
+                  style: TextStyle(color: Colors.white, fontSize: 13),
+                )
+              ],
+            ),
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.network(
+                      "$iconPrefix${response.weather![0].icon}$iconSuffix",
+                     ),
+                  Text(
+                    "${response.main!.temp!.round()} $degree${provider.unitSymbol}",
+                    style: TextStyle(color: Colors.white, fontSize: 55),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Sunrise ${getFormattedTime(response.sys!.sunrise!, "hh:mm:ss")}",
+                  style: TextStyle(fontSize: 15, color: Colors.white),
+                ),
+                Text(
+                  "Sunset ${getFormattedTime(response.sys!.sunset!, "hh:mm:ss")}",
+                  style: TextStyle(fontSize: 15, color: Colors.white),
                 ),
               ],
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Sunrise ${getFormattedTime(response.sys!.sunrise!, "hh:mm:ss")}",
-                style: TextStyle(fontSize: 15, color: Colors.white),
-              ),
-              Text(
-                "Sunset ${getFormattedTime(response.sys!.sunset!, "hh:mm:ss")}",
-                style: TextStyle(fontSize: 15, color: Colors.white),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Wrap(
-            children: [
-              Text(
-                "feels like ${response.main!.feelsLike!.round()}$degree$celsius  ",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              Text(
-                "   ${response.weather![0].main},  ${response.weather![0].description}",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
-              )
-            ],
-          ),
-          Wrap(
-            children: [
-              Text(
-                "Humidity ${response.main!.humidity}%",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              Text(
-                "   Pressure ${response.main!.pressure}hPa",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              Text(
-                "Visibility ${response.visibility}meter",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              Text(
-                "   Wind ${response.wind!.speed}m/s",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              Text(
-                "Degree ${response.wind!.deg}$degree",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Icon(
-                Icons.location_on_outlined,
-                color: Colors.amber,
-              ),
-              Text(
-                "${response.name!}, ${response.sys!.country}",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
-              )
-            ],
-          )
-        ],
+            SizedBox(
+              height: 5,
+            ),
+            Wrap(
+              children: [
+                Text(
+                  "feels like ${response.main!.feelsLike!.round()}$degree$celsius  ",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                Text(
+                  "   ${response.weather![0].main},  ${response.weather![0].description}",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                )
+              ],
+            ),
+            Wrap(
+              children: [
+                Text(
+                  "Humidity ${response.main!.humidity}%",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                Text(
+                  "   Pressure ${response.main!.pressure}hPa",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                Text(
+                  "Visibility ${response.visibility}meter",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                Text(
+                  "   Wind ${response.wind!.speed}m/s",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                Text(
+                  "Degree ${response.wind!.deg}$degree",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on_outlined,
+                  color: Colors.white70,
+                ),
+                Text(
+                  "${response.name!}, ${response.sys!.country}",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
 
   Widget _forecastWeatherSection() {
-    return Center();
+    final response = provider.forecastResponseModel;
+    return Column(
+      children: [
+        SizedBox(
+          height: 20,
+        ),
+        Text(
+          "Forecast Weather",
+          style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
+              color: Colors.white,
+              letterSpacing: 1,
+              wordSpacing: 1),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: response!.list!.length,
+            itemBuilder: (context, index) {
+              final model = response.list![index];
+
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 8,vertical: 12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    
+                    Text(getFormattedDate(model.dt!, "pattern",),style: TextStyle(color: Colors.white,fontSize: 13),),
+                    Text(getFormattedTime(model.dt!, "pattern"),style: TextStyle(color: Colors.white,fontSize: 13),),
+                    Image.network(
+                        "$iconPrefix${model.weather![0].icon}$iconSuffix",
+                        color: Colors.amber,height: 80,),
+                    
+                    Text("${model.main!.temp!.round()}$degree$celsius",style: TextStyle(color: Colors.white)),
+                    Text("${model.weather![0].description}",style: TextStyle(color: Colors.white,fontSize: 13)),
+                    Text("${model.main!.tempMin!.round()}$degree$celsius / ${model.main!.tempMax!.round()}$degree$celsius",style: TextStyle(color: Colors.white,fontSize: 13)),
+
+                    
+                  ],
+                ),
+                margin: EdgeInsets.all(5),
+                height: 220,
+                width: 135,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(15)),
+              );
+            },
+          ),
+        )
+      ],
+    );
   }
 }
 
