@@ -58,78 +58,92 @@ class _WeatherPageState extends State<WeatherPage> {
 
     return Scaffold(
       backgroundColor: Color(0xff0C1824),
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          Column(
-            children: [
-              SvgPicture.asset(
-                "assets/images/1.svg",
-                height: (MediaQuery.of(context).size.height / 3) * 2.2,
+      body: SingleChildScrollView(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.max,
+
+              children: [
+                SvgPicture.asset(
+                  "assets/images/1.svg",
+                  height: (MediaQuery.of(context).size.height / 3) * 2.2,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                ),
+
+                Container(
+                  height: (MediaQuery.of(context).size.height / 3) * 0.8,
+                )
+
+
+              ],
+            ),
+            Positioned(
+              top: statusBarHeight,
+              child: Container(
+                height: appbarHeight,
                 width: MediaQuery.of(context).size.width,
-                fit: BoxFit.cover,
-              ),
-            ],
-          ),
-          Positioned(
-            top: statusBarHeight,
-            child: Container(
-              height: appbarHeight,
-              width: MediaQuery.of(context).size.width,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Text(
-                    "Weather",
-                    style: TextStyle(
-                        color: Color(0xff0C1824),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1),
-                  ),
-                  Spacer(),
-                  IconButton(
-                      onPressed: () async {
-                        final result = await showSearch(
-                            context: context, delegate: _citySearchDelegate());
-                        if (result != null && result.isNotEmpty) {
-                          provider.convertAddressToLatLong(result);
-                        }
-                      },
-                      icon: Icon(
-                        Icons.search,
-                        color: Color(0xff0C1824),
-                      )),
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, SettingPage.routeName);
-                      },
-                      icon: Icon(
-                        Icons.settings,
-                        color: Color(0xff0C1824),
-                      )),
-                ],
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Text(
+                      "Weather",
+                      style: TextStyle(
+                          color: Color(0xff0C1824),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1),
+                    ),
+                    Spacer(),
+                    IconButton(
+                        onPressed: () async {
+                          final result = await showSearch(
+                              context: context, delegate: _citySearchDelegate());
+                          if (result != null && result.isNotEmpty) {
+                            provider.convertAddressToLatLong(result);
+                          }
+                        },
+                        icon: Icon(
+                          Icons.search,
+                          color: Color(0xff0C1824),
+                        )),
+                    IconButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, SettingPage.routeName);
+                        },
+                        icon: Icon(
+                          Icons.settings,
+                          color: Color(0xff0C1824),
+                        )),
+                  ],
+                ),
               ),
             ),
-          ),
-          provider.hasDataLoaded
-              ? Positioned(
-                  top: appbarHeight + statusBarHeight,
-                  child: SizedBox(
-                    height: 1000,
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      children: [
-                        _currentWeatherSection(),
-                        _forecastWeatherSection(),
-                      ],
+
+
+            provider.hasDataLoaded
+                ? Positioned(
+                    top: appbarHeight + statusBarHeight,
+                    child: SizedBox(
+                      height: 1000,
+                      width: MediaQuery.of(context).size.width,
+                      child: Column(
+                        children: [
+
+                          Divider(color:  Color(0xff0C1824),),
+                          _currentWeatherSection(),
+                          _forecastWeatherSection(),
+                        ],
+                      ),
                     ),
-                  ),
-                )
-              : const CircularProgressIndicator(),
-        ],
+                  )
+                : const CircularProgressIndicator(),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
